@@ -18,11 +18,11 @@ def hash_password(password):
     return ph.hash(password)
 
 def init_database():
-    """Initialize database if empty"""
+    """Initialize any missing database records"""
 
-    # Initialize activities if empty
-    if activities_collection.count_documents({}) == 0:
-        for name, details in initial_activities.items():
+    # Initialize any missing activities
+    for name, details in initial_activities.items():
+        if not activities_collection.find_one({"_id": name}):
             activities_collection.insert_one({"_id": name, **details})
             
     # Initialize teacher accounts if empty
@@ -30,7 +30,7 @@ def init_database():
         for teacher in initial_teachers:
             teachers_collection.insert_one({"_id": teacher["username"], **teacher})
 
-# Initial database if empty
+# Initial database records
 initial_activities = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
@@ -97,6 +97,17 @@ initial_activities = {
         },
         "max_participants": 15,
         "participants": ["amelia@mergington.edu", "harper@mergington.edu"]
+    },
+    "Manga Maniacs": {
+        "description": "Explore the fantastic stories of the most interesting characters from Japanese Manga (graphic novels).",
+        "schedule": "Tuesdays at 7pm",
+        "schedule_details": {
+            "days": ["Tuesday"],
+            "start_time": "19:00",
+            "end_time": "20:00"
+        },
+        "max_participants": 15,
+        "participants": []
     },
     "Drama Club": {
         "description": "Act, direct, and produce plays and performances",
@@ -186,4 +197,3 @@ initial_teachers = [
         "role": "admin"
     }
 ]
-
